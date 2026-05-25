@@ -12,10 +12,18 @@ import pytz
 #
 # Configurnado o arquivo de log para verificar a lista de links #
 #
-logging.basicConfig(filename=os.path.join(str(Path.home()), "aeroporto.log"), # caminho do arquivo
+logging.basicConfig(filename=os.path.join(str(Path.cwd()), "aeroporto.log"), # caminho do arquivo
                     format="%(asctime)s %(message)s", # fomato, conforme documentação da biblioteca
                     filemode="w") # modo de escrita
-logger = logging.getLogger() # variável usada para imprimir dentro do arquivo .log
+
+logger = logging.getLogger(__name__) # variável usada para imprimir dentro do arquivo .log.
+                                    # No caso, __name__ é o nome do módulo, ou seja, extract.py.
+                                    # Assim, no arquivo de log, aparecerá o nome do módulo que fez a requisição.
+                                    # Cada logger é independente, ou seja, cada módulo pode ter um logger diferente, com configurações diferentes.
+                                    # Por que isso é melhor? Porque você descobre exatamente qual módulo fez a requisição,
+                                    # e pode configurar cada módulo para ter um nível de log diferente, por exemplo, um módulo pode ter nível de log DEBUG,
+                                    #  e outro módulo pode ter nível de log INFO.
+
 logger.setLevel(logging.DEBUG)  # nível de DEBUG inclui informações sobre pacote requests
 
 
@@ -47,7 +55,7 @@ def get_endpoint(endpoint, endpoint_id=None, params=None):
         logger.info(f"Págins: {number_pages} link: {link_next_page}")
         result_get = request("GET", link_next_page, headers=headers)
         result_get.raise_for_status()
-        
+        result_list.append(result_get.json())
     # import ipdb; ipdb.set_trace()
     return result_list
 
