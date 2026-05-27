@@ -124,5 +124,5 @@ def get_destinations_for_iata(iata):
 
 
 if __name__ == "__main__":
-   print(get_destinations_for_iata("AAA"))
+   print(get_destinations())
 
