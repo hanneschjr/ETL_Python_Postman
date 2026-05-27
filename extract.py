@@ -1,5 +1,5 @@
 from decouple import config
-from requests import request
+import requests
 from constants import BASE_URL
 import re
 import logging
@@ -42,8 +42,12 @@ def get_endpoint(endpoint, endpoint_id=None, params=None):
     
     result_list = []
 
-    result_get = request("GET", url, headers=headers, params=params)
-    result_get.raise_for_status()
+    session = requests.Session() # criando uma sessão para reutilizar a conexão, o que é mais eficiente do que criar uma nova conexão para cada requisição.
+    session.headers.update(headers) # atualizando os headers da sessão, para que não seja necessário passar os headers em cada requisição.
+
+    # result_get = request("GET", url, headers=headers, params=params)
+    result_get = session.get(url, params=params)
+    result_get.raise_for_status() # verificando se a requisição foi bem sucedida, caso contrário, uma exceção será levantada.
     result_list.append(result_get.json())
 
     number_pages = process_headers_number_of_pages(result_get.headers)
@@ -52,8 +56,8 @@ def get_endpoint(endpoint, endpoint_id=None, params=None):
 
     while link_next_page:= process_headers_next_page(result_get.headers):
         time.sleep(0.5)
-        logger.info(f"Págins: {number_pages} link: {link_next_page}")
-        result_get = request("GET", link_next_page, headers=headers)
+        logger.info(f"Páginas: {number_pages} link: {link_next_page}")
+        result_get = session.get(link_next_page)
         result_get.raise_for_status()
         result_list.append(result_get.json())
     # import ipdb; ipdb.set_trace()

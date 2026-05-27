@@ -104,21 +104,21 @@ def transform_flights_agenda_today(flights_agenda_today_pages):
             eu = flight_route.get("eu")
             visa = flight_route.get("visa")
             if destinations:
-                route = ",".join(destinations)
+                route = ",".join(destinations) # flight_route é uma lista, então precisamos transformar em string para salvar no banco de dados
         
         codeshares = None
         flight_codeshares = flight.get("codeshares")
         if flight_codeshares:
             flight_codeshares = flight_codeshares.get("codeshares")
             if flight_codeshares:
-                codeshares = ",".join(flight_codeshares)
+                codeshares = ",".join(flight_codeshares) # flight_codeshares é uma lista, então precisamos transformar em string para salvar no banco de dados
         
         flight_states = None
         public_flight_states = flight.get("publicFlightStates")
         if public_flight_states:
             flight_states = public_flight_states.get("flightStates")
             if flight_states:
-                flight_states = ",".join(flight_states)
+                flight_states = ",".join(flight_states) # flight_states é uma lista, então precisamos transformar em string para salvar no banco de dados
 
         atributos = {
             "aircraftType_iataMain": aircraftType_iataMain,
