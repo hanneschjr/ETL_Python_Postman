@@ -88,7 +88,7 @@ def transform_flights_agenda_today(flights_agenda_today_pages):
         flights_agenda_today.extend(flight_page.get("flights"))
 
     for flight in flights_agenda_today:
-        aircraftType = flight.get("aircraftTypes")
+        aircraftType = flight.get("aircraftType")
         aircraftType_iataMain = None
         aircraftType_iataSub = None
         if aircraftType:
