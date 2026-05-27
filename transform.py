@@ -1,4 +1,7 @@
 
+from datetime import timezone, UTC, datetime
+
+
 def transform_airlines(airlines_pages):
     results = []
     airlines = []
@@ -54,14 +57,35 @@ def transform_destinations(destinations_pages):
             "city": destination.get("city"),
         }
         )
-        
+       
     return results
+
+
+def atributos_for_dict(flight, lista_atributos):
+    resultados = {}
+    for atributo in lista_atributos:
+        resultados[atributo] = flight.get(atributo)
+    return resultados
+
+
+def atributos_data_for_dict(flight, lista_atributos):
+    resultados = {}
+    for atributo in lista_atributos:
+        data = flight.get(atributo)
+        if data:
+            try:
+                data = datetime.fromisoformat(data).astimezone(timezone.utc)
+            except:
+                data = None
+        resultados[atributo] = data
+    return resultados
+
 
 def transform_flights_agenda_today(flights_agenda_today_pages):
     results = []
     flights_agenda_today = []
-    for page in flights_agenda_today_pages:
-        flights_agenda_today.extend(page.get("flights"))
+    for flight_page in flights_agenda_today_pages:
+        flights_agenda_today.extend(flight_page.get("flights"))
 
     for flight in flights_agenda_today:
         aircraftType = flight.get("aircraftTypes")
@@ -72,7 +96,7 @@ def transform_flights_agenda_today(flights_agenda_today_pages):
             aircraftType_iataSub = aircraftType.get("iataSub")
         
         route = None
-        originIata = None
+        eu = None
         visa = None
         flight_route = flight.get("route")
         if flight_route:
@@ -80,7 +104,7 @@ def transform_flights_agenda_today(flights_agenda_today_pages):
             eu = flight_route.get("eu")
             visa = flight_route.get("visa")
             if destinations:
-                route = ",".join(destinations):
+                route = ",".join(destinations)
         
         codeshares = None
         flight_codeshares = flight.get("codeshares")
@@ -105,7 +129,8 @@ def transform_flights_agenda_today(flights_agenda_today_pages):
             "eu": eu,
             "visa": visa,
         }
-        atributos.update(
+
+        atributos.update( # update é o método para dicionários equivalente ao extend para listas
             atributos_for_dict(
                 flight, 
                 [
@@ -127,20 +152,25 @@ def transform_flights_agenda_today(flights_agenda_today_pages):
             )
         )
 
-        results.append(            
-        {
-            "flightId": flight.get("flightId"),
-            "scheduleDate": flight.get("scheduleDate"),
-            "airlineIata": flight.get("airlineIata"),
-            "flightNumber": flight.get("flightNumber"),
-            "originIata": flight.get("originIata"),
-            "destinationIata": flight.get("destinationIata"),
-            "aircraftTypeIataMain": aircraftType_iataMain,
-            "aircraftTypeIataSub": aircraftType_iataSub,
-            "route": route,
-            "visa": visa,
-            "codeshares": codeshares,
-        }
+        atributos.update(
+            atributos_data_for_dict(
+                flight,
+                [
+                    "estimatedLandingTime",
+                    "lastUpdatedAt",
+                    "actualLandingTime",
+                    "scheduleDateTime",
+                    "actualOffBlockTime",
+                    "expectedTimeBoarding",
+                    "expectedTimeGateClosing",
+                    "expectedTimeGateOpen",
+                    "expectedTimeOnBelt",
+                    "expectedSecurityFilter",
+                    "publicEstimatedOffBlockTime",
+                ]
+            )
         )
-        
-    return results
+
+        results.append(atributos)
+    return results 
+
